@@ -37,4 +37,39 @@ def create_todo( todo: Todovalidation):
 def get_all_todo():
     return todos
 
-@app.get("/todos/{todo_id}")
+@app.get("/todos/{todo_id}", response_model=Todo)
+def get_todo_by_Id(todo_id : int):
+
+    for item in todos:
+        if item['id'] == todo_id:
+            return item
+        
+    raise HTTPException(status_code=404, detail="Todo not found")
+
+
+@app.put("/todos/{todo_id}", response_model=Todo)
+
+#below updated is the variable name we chose to change the existing Todovalidation without this it wound not now what to change and validate
+def update_Todo(todo_id : int, updated: Todovalidation):
+   for ids, item in enumerate(todos):
+       if item['id'] == todo_id:
+           todos[ids] = {
+                "id": todo_id,
+                "title": updated.title,
+                "description": updated.description,
+                "completed": updated.completed
+            } 
+       return todos[ids]
+   raise HTTPException(status_code=404, detail="Todo not found")
+
+
+@app.delete("/todos/{todo_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_todo(todo_id: int):
+    for ids, item in enumerate(todos):
+        if item["id"] == todo_id:
+            todos.pop(ids)
+            return JSONResponse(content={"message": "Todo deleted successfully"})
+    raise HTTPException(status_code=404, detail="Todo not found")    
+
+
+
